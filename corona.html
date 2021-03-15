@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>corona api</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
+    <style>
+        tr{
+            transition: 0.3s all;
+            height: 50px;
+            cursor: pointer;
+        }
+
+        tr:hover{background-color: rgba(0, 0, 0, 0.1);}
+
+        .table_btn{
+            border: none;
+            border-radius: 5px;
+            background-color: rgba(0, 0, 0, 0);
+            transition: .3s all;
+            outline: none;
+        }
+        
+        th{transition: 0.3s all;}
+        th:hover{background-color: #212326 !important;}
+        .bg-deepDark{background-color: #212326 !important;}
+
+        .table_btn > *{transition: .3s all;}
+        .table_btn:hover{background-color: #000;}
+        .table_btn.check > *{transform: rotate(180deg);}
+        
+    </style>
+</head>
+<body>
+
+    <!-- content -->
+    <div class="container-fluid position-relative">
+        <!-- nav -->
+        <nav class="navbar navbar-dark bg-dark sticky-top shadow">
+            <h1 class="navbar-brand">코로나 발생 현황</h1>
+
+            <!-- form -->
+            <form onsubmit="return false;" class="form-inline">
+                <div class="form-group mr-2">
+                    <input type="date" name="startDate" id="startDate" class="form-control">
+                </div>
+                <span class="text-light font-weight-bold">~</span>
+                <div class="form-group ml-2">
+                    <input type="date" name="endDate" id="endDate" class="form-control">
+                </div>
+                <button class="btn-view btn btn-outline-light ml-2 ">검색</button>
+            </form>
+            <!-- /form -->
+        </nav>
+        <!-- /nav -->
+
+        <div class="container mt-5 mb-5 " id="list">
+            <div class="list-head d-flex justify-content-md-between align-items-center">
+                <p class="text-muted font-weight-bold">* [&nbsp;] 안의 숫자는 전날과 비교했을때의 증감량입니다.</p>
+                <div class="button-group float-right mb-2">
+                    <button class="btn btn-dark" id="pre_btn">&lt;</button>
+                    <span class="pl-2 pr-2">
+                        <span id="nowPage" class="font-weight-bold pr-1"></span>
+                        <span class="font-weight-bold">/</span>
+                        <span id="allPage" class="font-weight-bold pl-1 text-muted"></span>
+                    </span>
+                    <button class="btn btn-dark" id="next_btn">&gt;</button>
+                </div>
+            </div>
+
+            <!-- table -->
+            <table class="table rounded overflow-hidden shadow" id="corona_table">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col" id="date_sort_title" class="bg-deepDark">날짜
+                            <button class="table_btn" id="date_sort">
+                                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-chevron-down text-light" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
+                                </svg>
+                            </button>
+                        </th>
+                        <th scope="col" id="time_sort_title">시간
+                            <button class="table_btn" id="time_sort">
+                                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-chevron-down text-light" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
+                                </svg>
+                            </button>
+                        </th>
+                        <th scope="col" id="case_sort_title">확진자
+                            <button class="table_btn" id="case_sort">
+                                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-chevron-down text-light" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
+                                </svg>
+                            </button>
+                        </th>
+                        <th scope="col" id="care_sort_title">치료중
+                            <button class="table_btn" id="care_sort">
+                                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-chevron-down text-light" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
+                                </svg>
+                            </button>
+                        </th>
+                        <th scope="col" id="death_sort_title">사망
+                            <button class="table_btn" id="death_sort">
+                                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-chevron-down text-light" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
+                                </svg>
+                            </button>
+                        </th>
+                        <th scope="col" id="clear_sort_title">해제
+                            <button class="table_btn" id="clear_sort">
+                                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-chevron-down text-light" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
+                                </svg>
+                            </button>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        
+                    </tr>
+                </tbody>
+            </table>
+            <!-- /table -->
+        </div>
+
+    </div>
+    <!-- /content -->
+
+    <!-- script -->
+    <script>
+        // 	zhbSLcKEY5r31%2BLnv9ZfZoAyihdTXXpGSQj5uZSaubj6hgCTUWkfarhLAjEyqQHyyQpWUClAFYt4aIHEdf8mWA%3D%3D
+        let corona_data = [];
+        let original_corona_data = [];
+        let AllPage = 0;
+        let nowPage = 0;
+        let block = 10;
+
+        var url = 'http://openapi.data.go.kr/openapi/service/rest/Covid19/getCovid19InfStateJson';
+        var queryParams = '?' + encodeURIComponent('ServiceKey') + '='+'FSsAQOoozEu%2B%2Ff0vAVKtlorUsHP0DFER2EfCK8oQTlbNbcgqnBgXTL8BqrTiznZ5kwUCpA17RIEbm%2FbNWUziiw%3D%3D';
+        queryParams += '&' + encodeURIComponent('ServiceKey') + '=' + encodeURIComponent('FSsAQOoozEu%2B%2Ff0vAVKtlorUsHP0DFER2EfCK8oQTlbNbcgqnBgXTL8BqrTiznZ5kwUCpA17RIEbm%2FbNWUziiw%3D%3D');
+        queryParams += '&' + encodeURIComponent('pageNo') + '=' + encodeURIComponent('1'); 
+        queryParams += '&' + encodeURIComponent('numOfRows') + '=' + encodeURIComponent('100'); 
+
+        const getCoronaData = async () =>{
+            nowPage = 0;
+
+            let corona_url = url + queryParams;
+            let startDate = $("#startDate").val();
+            let endDate = $("#endDate").val();
+
+            startDate = startDate.replace(/[-]/g,"");
+            
+            startDate_year = parseInt(startDate.substring(0,4));
+            startDate_month = parseInt(startDate.substring(4,6));
+            startDate_day = parseInt(startDate.substring(6,8));
+            
+            if(startDate_day - 1 < 1){
+                let date = new Date(startDate_year,startDate_month-1,startDate_day-1);
+                startDate_year = date.getFullYear();
+                startDate_month = date.getMonth() + 1;
+                startDate_month = startDate_month < 10 ? "0"+startDate_month : startDate_month;
+                startDate_day = date.getDate();
+
+            }else{
+                startDate_day = startDate_day - 1 < 10 ? "0"+(startDate_day - 1) : (startDate_day-1)+"";
+                startDate_month = startDate_month < 10 ? "0"+startDate_month : startDate_month;
+            }
+            
+            startDate = (startDate_year+"") + (startDate_month+"") + (startDate_day + "");
+            endDate = endDate.replace(/[-]/g,"");
+
+            corona_url += '&' + encodeURIComponent('startCreateDt') + '=' + encodeURIComponent(startDate);
+            corona_url += '&' + encodeURIComponent('endCreateDt') + '=' + encodeURIComponent(endDate);
+
+            let res = await fetch(corona_url);
+            let txt = await res.text();
+            let xml = await (new window.DOMParser()).parseFromString(txt,"text/xml");
+
+            corona_data = xml2json(xml);
+            original_corona_data = corona_data;
+
+            listData(corona_data);
+        }
+
+        const listData = (data)=>{
+            $("#corona_table tbody").html("");
+
+
+            AllPage = Math.ceil(data.items.length / block);
+            if(AllPage < 2){
+                document.querySelector("#pre_btn").style.visibility = "hidden";
+                document.querySelector("#next_btn").style.visibility = "hidden";
+            }else{
+                if(nowPage == 0) document.querySelector("#pre_btn").style.visibility = "hidden";
+                else document.querySelector("#pre_btn").style.visibility = "visible";
+
+                if(nowPage == AllPage-1) document.querySelector("#next_btn").style.visibility = "hidden";
+                else document.querySelector("#next_btn").style.visibility = "visible";
+            }
+
+            $("#nowPage").text(nowPage+1);
+            $("#allPage").text(AllPage);
+
+            let start = nowPage * block;
+            let end = data.items.length < (block + block*nowPage) ? data.items.length : (block + block*nowPage);
+
+            if(data.items.length < 1){
+                $("#nowPage").text("1");
+                $("#allPage").text("1");
+                return listNone();
+            }
+
+            for(let i = start; i < end; i++){
+                $("#corona_table tbody").append(listDataTemplete(data.items[i]));
+            }
+        }
+
+        const listDataTemplete = (x)=>{
+            let Case = parseInt(x.case).toLocaleString();
+            let clear = parseInt(x.clear).toLocaleString();
+            let death = parseInt(x.death).toLocaleString();
+            let care = parseInt(x.care).toLocaleString();
+            
+            let card = `
+            <tr class="p-2">
+                <td>${x.date}</td>
+                <td>${x.time}</td>
+                <td>${Case}명 <span class="font-weight-bold ${x.increment_case > 0 ? "text-danger" : "text-success"}">[ ${x.increment_case > 0 ? "+"+x.increment_case.toLocaleString() : x.increment_case.toLocaleString()} ]</span> </td>
+                <td>${care}명 <span class="font-weight-bold ${x.increment_care > 0 ? "text-danger" : "text-success"}">[ ${x.increment_care > 0 ? "+"+x.increment_care.toLocaleString() : x.increment_care.toLocaleString()} ]</span> </td>
+                <td>${death}명 <span class="font-weight-bold ${x.increment_death > 0 ? "text-danger" : "text-success"}">[ ${x.increment_death > 0 ? "+"+x.increment_death.toLocaleString() : x.increment_death.toLocaleString()} ]</span> </td>
+                <td>${clear}명 <span class="font-weight-bold ${x.increment_clear < 0 ? "text-danger" : "text-success"}">[ ${x.increment_clear > 0 ? "+"+x.increment_clear.toLocaleString() : x.increment_clear.toLocaleString()} ]</span> </td>
+            </tr>`;
+            return card;
+        }
+
+        const xml2json = xml =>{
+            let data = {};
+            let body = $(xml).find("body")[0];
+            data.total = $(body).find("totalCount")[0].innerHTML;
+            data.page = $(body).find("pageNo")[0].innerHTML;
+            let items = $(body).find("item");
+            data.items = [];
+
+            for(let i = 0; i < items.length; i++){
+                if($(items[i]).find("stateDt").text() !== $(items[i+1]).find("stateDt").text()){
+                    let item = {};
+                    item.date = $(items[i]).find("stateDt").text();
+                    item.time = $(items[i]).find("stateTime").text();
+                    item.case = $(items[i]).find("decideCnt").text();
+                    item.clear = $(items[i]).find("clearCnt").text();
+                    item.death = $(items[i]).find("deathCnt").text();
+                    item.care = $(items[i]).find("careCnt").text();
+                    
+                    item.date = item.date.substring(0,4)+"-"+item.date.substring(4,6)+"-"+item.date.substring(6,8);
+
+                    data.items.push(item);
+                }
+                
+            }
+
+            for(let i = 0; i < data.items.length - 1; i++){
+                data.items[i].increment_case = parseInt(data.items[i].case) - parseInt(data.items[i+1].case);
+                data.items[i].increment_clear = parseInt(data.items[i].clear) - parseInt(data.items[i+1].clear);
+                data.items[i].increment_death = parseInt(data.items[i].death) - parseInt(data.items[i+1].death);
+                data.items[i].increment_care = parseInt(data.items[i].care) - parseInt(data.items[i+1].care);
+            }
+
+            data.items = data.items.splice(0,data.items.length-1);
+            return data;
+        }
+
+        const init = () =>{
+            let today = new Date();
+            let yy = today.getFullYear();
+            let mm = today.getMonth() + 1;
+            let dd = today.getDate();
+            if(mm < 10) mm = "0" + mm;
+            if(dd < 10) mm = "0" + dd;
+            let startDate = yy+"-"+mm+"-"+dd;
+            let endDate = startDate;
+            $("#startDate").val(startDate);
+            $("#endDate").val(endDate);
+        }
+
+        const listNone = ()=>{
+            $("#corona_table tbody").html("");
+
+            let none = `
+            <tr>
+                <td colspan="7" class="text-center font-weight-bold text-muted">
+                    해당하는 날짜에 대한 데이터가 존재하지 않습니다!
+                </td>
+            </tr>`;
+
+            $("#corona_table tbody").append(none);
+        }
+
+        $("#pre_btn").on("click",(e)=>{
+            nowPage -= 1;
+            listData(corona_data);
+        });
+
+        $("#next_btn").on("click",(e)=>{
+            nowPage += 1;
+            listData(corona_data);
+        });
+
+        $(".btn-view").on("click",(e)=>{
+            e.preventDefault();
+
+            sort_btn_reset();
+
+            getCoronaData();
+        });
+
+        $(".table_btn").on("click",(e)=>{
+            let target = e.currentTarget;
+
+            if(target.classList.contains("check")){
+                target.classList.remove("check");
+            } else {
+                target.classList.add("check");
+                document.querySelector("#"+target.getAttribute("id")+"_title").classList.add("bg-deepDark");
+            }
+        });
+
+        $("#date_sort").on("click",()=>{
+            sort_btn_reset("date_sort");
+            corona_data = list_sort(document.querySelector("#date_sort").classList.contains("check"),"date");
+            
+            listData(corona_data);
+        });
+
+        $("#death_sort").on("click",()=>{
+            sort_btn_reset("death_sort");
+            corona_data = list_sort(document.querySelector("#death_sort").classList.contains("check"),"increment_death");
+            // corona_data = list_sort(document.querySelector("#death_sort").classList.contains("check"),"death");
+            listData(corona_data);
+        });
+
+        $("#time_sort").on("click",()=>{
+            sort_btn_reset("time_sort");
+            corona_data = list_sort(document.querySelector("#time_sort").classList.contains("check"),"time");
+            listData(corona_data);
+        });
+
+        $("#case_sort").on("click",()=>{
+            sort_btn_reset("case_sort");
+            corona_data = list_sort(document.querySelector("#case_sort").classList.contains("check"),"increment_case");
+            // corona_data = list_sort(document.querySelector("#case_sort").classList.contains("check"),"case");
+            listData(corona_data);
+        });
+
+        $("#care_sort").on("click",()=>{
+            sort_btn_reset("care_sort");
+            corona_data = list_sort(document.querySelector("#care_sort").classList.contains("check"),"increment_care");
+            // corona_data = list_sort(document.querySelector("#care_sort").classList.contains("check"),"care");
+            listData(corona_data);
+        });
+
+        $("#clear_sort").on("click",()=>{
+            sort_btn_reset("clear_sort");
+            corona_data = list_sort(document.querySelector("#clear_sort").classList.contains("check"),"increment_clear");
+            // corona_data = list_sort(document.querySelector("#clear_sort").classList.contains("check"),"clear");
+            listData(corona_data);
+        });
+
+        const list_sort = (sort_type,sort_menu) =>{
+            let list = JSON.parse(JSON.stringify(original_corona_data));
+            if(sort_type){
+                // 오름차순
+                list.items.sort((a,b)=>{
+                    if(a[sort_menu] > b[sort_menu]) return 1;
+                    if(a[sort_menu] < b[sort_menu]) return -1;
+                    return 0;
+                });
+            }else{
+                // 내림차순
+                list.items.sort((a,b)=>{
+                    if(a[sort_menu] > b[sort_menu]) return -1;
+                    if(a[sort_menu] < b[sort_menu]) return 1;
+                    return 0;
+                });
+            }
+            return list;
+        }
+
+        const sort_btn_reset = (exception = "")=>{
+            let list = document.querySelectorAll(".table_btn");
+            list.forEach(x=>{
+                if(x.getAttribute("id") !== exception){
+                    x.classList.remove("check");
+                    document.querySelector("#"+x.getAttribute("id")+"_title").classList.remove("bg-deepDark");
+                }
+            });
+        }
+
+        init();
+
+        getCoronaData();
+
+    </script>
+    <!-- /script -->
+
+</body>
+</html>

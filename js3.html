@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>비동기 / 동기</title>
+</head>
+<body>
+    <script>
+        let posts = [];
+        async function getPosts(){
+            let response = await fetch("https://jsonplaceholder.typicode.com/posts");
+            let json = await response.json();
+            posts = json;
+        }
+
+        let init = async () =>{
+        await getPosts();
+        console.log(posts);
+        }
+
+        init();
+
+    </script>
+</body>
+</html>

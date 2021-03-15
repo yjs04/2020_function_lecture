@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Javascript</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
+    <script>
+        window.onload = e=>{
+            let dom = document.querySelector("#my1");
+            // dom.style.color = "red";
+        }
+    </script>
+</head>
+<body>
+    <h1 id="my1"></h1>
+    <script>
+        let h1 = document.querySelector("#my1");
+        h1.innerHTML = new Date();
+
+        let arr3 = new Array(1,2,3,4,5);
+        let arr4 = [12,3,4,5];
+        let obj1 = new Object();
+        let obj2 = {};
+        console.log(arr3);
+        console.log(arr4);
+        console.log(obj1);
+        console.log(obj2);
+        let json = {
+            "name":"홍길동",
+            age:20,
+            shoTime: function (){
+                console.log(new Date());
+            }
+        };
+
+        json.info = function(){
+            console.log(this.name +" "+this.age);
+        }
+
+        json.info();
+        json.shoTime();
+
+        const app = {
+            el: "#my1",
+            cc:function(c){
+                document.querySelector(this.el).style.color = c;
+            }
+        }
+
+        app.cc("dark");
+
+        class MyApp{
+            constructor(w,h){
+                this.w = w;
+                this.h = h;
+            }
+
+            drawRect(bg){
+                let div = document.createElement('div');
+                div.style.width = this.w + "px";
+                div.style.height = this.h + "px";
+                div.style.backgroundColor = bg;
+                div.style.borderRadius = "5px";
+                document.body.appendChild(div);
+            }
+        }
+
+        let ap1 = new MyApp(50,50);
+        ap1.drawRect("gold");
+        function f1(t){
+            let title = t;
+            console.log(t);
+        }
+
+        f1("EEEE");
+        let f2 = function(t){
+            console.log(t);
+        };
+        f2("$");
+
+    </script>
+</body>
+</html>

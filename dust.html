@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>미세먼지</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
+</head>
+<body>
+    <script>
+        var url = 'http://openapi.airkorea.or.kr/openapi/services/rest/UlfptcaAlarmInqireSvc/getUlfptcaAlarmInfo'; /*URL*/
+        var queryParams = '?' + encodeURIComponent('ServiceKey') + '='+'zhbSLcKEY5r31%2BLnv9ZfZoAyihdTXXpGSQj5uZSaubj6hgCTUWkfarhLAjEyqQHyyQpWUClAFYt4aIHEdf8mWA%3D%3D';
+        queryParams += '&' + encodeURIComponent('ServiceKey') + '=' + encodeURIComponent('zhbSLcKEY5r31%2BLnv9ZfZoAyihdTXXpGSQj5uZSaubj6hgCTUWkfarhLAjEyqQHyyQpWUClAFYt4aIHEdf8mWA%3D%3D');
+        queryParams += '&' + encodeURIComponent('pageNo') + '=' + encodeURIComponent('1');
+        queryParams += '&' + encodeURIComponent('numOfRows') + '=' + encodeURIComponent('10');
+        queryParams += '&' + encodeURIComponent('year') + '=' + encodeURIComponent('2020');
+        queryParams += '&' + encodeURIComponent('itemCode') + '=' + encodeURIComponent('PM10');
+        let dust_data = [];
+        let dust_url = url+queryParams;
+
+        const getDust = async () =>{
+            let res = await fetch(dust_url);
+            let txt = await res.text();
+            let xml = await (new window.DOMParser()).parseFromString(txt,"text/xml");
+            dust_data = xml2json(xml);
+        }
+
+        const xml2json = xml =>{
+            let data = {};
+            let body = $(xml).find("body")[0];
+
+            data.total = $(body).find("totalCount")[0].innerHTML;
+            data.page = $(body).find("pageNo")[0].innerHTML;
+
+            let items = $(body).find("item");
+            data.items = [];
+
+            for(let i = 0; i < items.length; i++){
+                let item = {};
+                item.date = $(items[i]).find("dataDate").text();
+                item.itemCode = $(items[i]).find("itemCode").text();
+                item.districtName = $(items[i]).find("districtName").text();
+                item.moveName = $(items[i]).find("moveName").text();
+                item.issueDate = $(items[i]).find("issueDate").text();
+                item.issueTime = $(items[i]).find("issueTime").text();
+                item.issueVal = $(items[i]).find("issueVal").text();
+                item.issueGbn = $(items[i]).find("issueGbn").text();
+                item.clearDate = $(items[i]).find("clearDate").text();
+                item.clearTime = $(items[i]).find("clearTime").text();
+                item.clearVal = $(items[i]).find("clearVal").text();
+
+                data.items.push(item);
+            }
+
+            return data;
+        }
+
+        getDust();
+
+    </script>
+</body>
+</html>
